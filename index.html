@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            width: 100%;
+        }
+        .calculator-container h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .calculator-container select, .calculator-container input[type="number"], .calculator-container input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .calculator-container input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .calculator-container input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .calculator-form {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Select Calculation</h1>
+        <select id="calculationSelect">
+            <option value="" disabled selected>Select a calculation</option>
+            <option value="buttCut">Butt Cut Beverage Wrap Labels</option>
+            <option value="dieCut">Die Cut Labels</option>
+            <option value="labelsPerRoll">Labels per Roll</option>
+            <option value="revsPerRoll">Revs per Roll</option>
+        </select>
+
+        <div id="buttCutForm" class="calculator-form">
+            <form id="buttCutCalculatorForm">
+                <input type="number" id="inputA" step="any" placeholder="Around Length (inches)" required>
+                <input type="number" id="inputB" step="any" placeholder="Quantity" required>
+                <input type="number" id="inputC" step="any" placeholder="No. of Strands" required>
+                <input type="submit" value="Calculate">
+            </form>
+        </div>
+
+        <div id="dieCutForm" class="calculator-form">
+            <form id="dieCutCalculatorForm">
+                <input type="number" id="D" step="any" placeholder="Toothsize" required>
+                <input type="number" id="E" step="any" placeholder="Quantity" required>
+                <input type="number" id="F" step="any" placeholder="Cavities" required>
+                <input type="number" id="G" step="any" placeholder="No. of Strands" required>
+                <input type="submit" value="Calculate">
+            </form>
+        </div>
+
+        <div id="labelsPerRollForm" class="calculator-form">
+            <form id="labelsPerRollCalculatorForm">
+                <select id="cutType" required>
+                    <option value="" disabled selected>Select Cut Type</option>
+                    <option value="dieCut">Die Cut</option>
+                    <option value="buttCut">Butt Cut</option>
+                </select>
+                <input type="number" id="inputF" step="any" placeholder="Revs" required>
+                <input type="number" id="inputG" step="any" placeholder="Around Length (inches)" required>
+                <input type="number" id="inputH" step="any" placeholder="No. Across in Roll" required>
+                <input type="submit" value="Calculate">
+            </form>
+        </div>
+
+        <div id="revsPerRollForm" class="calculator-form">
+            <form id="revsPerRollCalculatorForm">
+                <select id="cutTypeRevs" required>
+                    <option value="" disabled selected>Select Cut Type</option>
+                    <option value="dieCut">Die Cut</option>
+                    <option value="buttCut">Butt Cut</option>
+                </select>
+                <input type="number" id="inputI" step="any" placeholder="Around Length (inches)" required>
+                <input type="number" id="inputJ" step="any" placeholder="Quantity in Roll" required>
+                <input type="number" id="inputK" step="any" placeholder="No. Across in Roll" required>
+                <input type="submit" value="Calculate">
+            </form>
+        </div>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('calculationSelect').addEventListener('change', function() {
+            // Hide all forms
+            document.querySelectorAll('.calculator-form').forEach(form => form.style.display = 'none');
+            // Show the selected form
+            const selectedForm = document.getElementById(this.value + 'Form');
+            if (selectedForm) selectedForm.style.display = 'block';
+        });
+
+        function calculateButtCut(a, b, c) {
+            return (b * a / (10 * c));
+        }
+
+        function calculateDieCut(toothsize, quantity, cavitiesAround, noOfStrands) {
+            const numerator = (quantity * (toothsize / 8)) / 10;
+            const denominator = cavitiesAround;
+            return numerator / denominator;
+        }
+
+        function calculateLabelsPerRollDieCut(revs, aroundLength, noAcrossInRoll) {
+            return ((revs * noAcrossInRoll * 10)/(aroundLength+0.125));
+        }
+
+        function calculateLabelsPerRollButtCut(revs, aroundLength, noAcrossInRoll) {
+            return ((revs * noAcrossInRoll * 10)/aroundLength);
+        }
+
+        function calculateRevsPerRollDieCut(aroundLength, quantity, noAcrossInRoll) {
+            return (quantity * (aroundLength+0.125)) / (10 * noAcrossInRoll);
+        }
+
+        function calculateRevsPerRollButtCut(aroundLength, quantity, noAcrossInRoll) {
+            return (quantity * aroundLength) / (10 * noAcrossInRoll);
+        }
+
+        document.getElementById('buttCutCalculatorForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const a = parseFloat(document.getElementById('inputA').value);
+            const b = parseFloat(document.getElementById('inputB').value);
+            const c = parseFloat(document.getElementById('inputC').value);
+            const result = calculateButtCut(a, b, c);
+            document.getElementById('result').innerText = `Revs: ${result.toFixed(2)}`;
+        });
+
+        document.getElementById('dieCutCalculatorForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const toothsize = parseFloat(document.getElementById('D').value);
+            const quantity = parseFloat(document.getElementById('E').value);
+            const cavitiesAround = parseFloat(document.getElementById('F').value);
+            const noOfStrands = parseFloat(document.getElementById('G').value);
+            const result = calculateDieCut(toothsize, quantity, cavitiesAround, noOfStrands);
+            document.getElementById('result').innerText = `Revs: ${result.toFixed(2)}`;
+        });
+
+        document.getElementById('labelsPerRollCalculatorForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const revs = parseFloat(document.getElementById('inputF').value);
+            const aroundLength = parseFloat(document.getElementById('inputG').value);
+            const noAcrossInRoll = parseFloat(document.getElementById('inputH').value);
+            const cutType = document.getElementById('cutType').value;
+
+            let result;
+            if (cutType === 'dieCut') {
+                result = calculateLabelsPerRollDieCut(revs, aroundLength, noAcrossInRoll);
+            } else if (cutType === 'buttCut') {
+                result = calculateLabelsPerRollButtCut(revs, aroundLength, noAcrossInRoll);
+            }
+
+            document.getElementById('result').innerText = `Labels: ${result.toFixed(2)}`;
+        });
+
+        document.getElementById('revsPerRollCalculatorForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const aroundLength = parseFloat(document.getElementById('inputI').value);
+            const quantity = parseFloat(document.getElementById('inputJ').value);
+            const noAcrossInRoll = parseFloat(document.getElementById('inputK').value);
+            const cutType = document.getElementById('cutTypeRevs').value;
+
+            let result;
+            if (cutType === 'dieCut') {
+                result = calculateRevsPerRollDieCut(aroundLength, quantity, noAcrossInRoll);
+            } else if (cutType === 'buttCut') {
+                result = calculateRevsPerRollButtCut(aroundLength, quantity, noAcrossInRoll);
+            }
+
+            document.getElementById('result').innerText = `Revs: ${result.toFixed(2)}`;
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
